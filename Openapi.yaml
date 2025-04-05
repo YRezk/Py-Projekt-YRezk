@@ -1,0 +1,191 @@
+openapi: 3.0.1
+info:
+  title: Todo-Listen-Verwaltung
+  version: "0.1.0"
+  description: REST API for Todo-Listen-Verwaltung
+servers:
+  - url: http://127.0.0.1:5000/
+paths:
+  /list/{list_id}:
+    get:
+      summary: Get all todo entries from a list
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoEntry'
+        '404':
+          description: List not found
+    delete:
+      summary: Delete a list and its entries
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        '404':
+          description: List not found
+  /list:
+    post:
+      summary: Create a new list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoList'
+      responses:
+        '200':
+          description: List created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoList'
+  /lists:
+    get:
+      summary: Get all lists
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoList'
+  /todo-list/{list_id}/entry:
+    post:
+      summary: Add a new todo entry to a list
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Entry added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoEntry'
+        '404':
+          description: List not found
+        '400':
+          description: Bad request
+  /todo-list/{list_id}/entry/{entry_id}:
+    put:
+      summary: Update an existing todo entry
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entry_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Entry updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoEntry'
+        '404':
+          description: List or entry not found
+        '400':
+          description: Bad request
+    delete:
+      summary: Delete an existing todo entry
+      parameters:
+        - name: list_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entry_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Entry deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        '404':
+          description: List or entry not found
+components:
+  schemas:
+    TodoList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    TodoEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        list:
+          type: string
+          format: uuid
