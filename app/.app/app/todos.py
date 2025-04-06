@@ -13,17 +13,22 @@ def add_todo_entry(list_id):
         abort(404, description="Todo-Liste nicht gefunden.")
     
     data = request.get_json(force=True)
-    if 'name' not in data:
-        abort(400, description="Feld 'name' fehlt im Request.")
+    if 'name' not in data or 'description' not in data:
+        abort(400, description="Felder 'name' und 'description' müssen im Request vorhanden sein.")
     
     new_entry = {
         'id': str(uuid.uuid4()),
         'name': data['name'],
-        'description': data.get('description', ''),
-        'list': list_id
+        'description': data['description'],
+        'list': list_id  # intern gespeichert, aber nicht im Response
     }
     app.todos.append(new_entry)
-    return jsonify(new_entry), 200
+    response_data = {
+        'id': new_entry['id'],
+        'name': new_entry['name'],
+        'description': new_entry['description']
+    }
+    return jsonify(response_data), 200
 
 # PUT /todo-list/<list_id>/entry/<entry_id> – Aktualisiert einen bestehenden Todo-Eintrag
 @app.route('/todo-list/<list_id>/entry/<entry_id>', methods=['PUT'])
@@ -58,4 +63,4 @@ def delete_todo_entry(list_id, entry_id):
         abort(404, description="Todo-Eintrag nicht gefunden.")
     
     app.todos.remove(entry)
-    return jsonify({'msg': 'Todo-Eintrag erfolgreich gelöscht'}), 200
+    return jsonify({'msg': 'success'}), 200
